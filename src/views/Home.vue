@@ -23,13 +23,14 @@
 
 <script>
 var { remote } = require("electron");
-import CryptoJS from "crypto-js";
+import md5 from "md5";
 export default {
   name: "home",
   data() {
     return {
       path: "点击选择需要翻译的目录",
-      loading: false
+      loading: false,
+      back: false
     };
   },
   methods: {
@@ -38,11 +39,6 @@ export default {
     },
     getFile(e) {
       this.path = e.target.files[0].path;
-    },
-    truncate(q) {
-      var len = q.length;
-      if (len <= 20) return q;
-      return q.substring(0, 10) + len + q.substring(len - 10, len);
     },
     startTrans(src) {
       var that = this;
@@ -75,29 +71,39 @@ export default {
             }
             // 判断是否为文件
             if (st.isFile()) {
-              let query = path.split(".")[0];
-              let dot = path.split(".")[1];
+              // console.log(path);
+              // let query = path.split('.')[0];
+              // let dot = path.split('.')[1];
               // // console.log(query);
               // word = query;
+              let subFileLength = path.lastIndexOf("."); //获取到文件名开始到最后一个“.”的长度。
+              let fullFileLength = path.length; //获取到文件名长度
 
-              var appKey = "70ee22a1c10c0b28";
-              var key = "xrf8qLTlwYtafAiqWlD5SygAVUom6llS"; //注意：暴露appSecret，有被盗用造成损失的风险
-              var salt = new Date().getTime();
-              var curtime = Math.round(new Date().getTime() / 1000);
+              let suffixName = path.substring(
+                subFileLength + 1,
+                fullFileLength
+              ); //截取后缀名
+              let subFileName = path.substring(0, subFileLength); //文件名
+
+              let appid = "20190618000308470";
+              let key = "3Naugqz0ydUXKUh7xXRw"; //注意：暴露appSecret，有被盗用造成损失的风险
+              let salt = new Date().getTime();
               // 多个query可以用\n连接  如 query='apple\norange\nbanana\npear'
-              var str1 = appKey + that.truncate(query) + salt + curtime + key;
+              let str = `${appid}${subFileName}${salt}${key}`;
 
-              var sign = CryptoJS.SHA256(str1).toString(CryptoJS.enc.Hex);
-              var signType = "v3";
+              let sign = md5(str);
 
-              let url = `https://openapi.youdao.com/api?q=${query}&from=auto&to=auto&appKey=${appKey}&salt=${salt}&sign=${sign}&signType=${signType}&curtime=${curtime}`;
+              let url = `http://api.fanyi.baidu.com/api/trans/vip/translate?q=${subFileName}&from=auto&to=zh&appid=${appid}&salt=${salt}&sign=${sign}`;
 
               request(encodeURI(url), function(error, response) {
                 if (!error && response.statusCode == 200) {
                   let res = JSON.parse(response.body);
-                  let target = res.translation[0];
-                  // //将返回的数据拼合成为路径
-                  var newPath = `${src}/${target}.${dot}`;
+                  let target = `${res &&
+                    res.trans_result &&
+                    res.trans_result[0] &&
+                    res.trans_result[0].dst}`;
+                  //将返回的数据拼合成为路径
+                  let newPath = `${src}/${target}.${suffixName}`;
                   fs.rename(_src, newPath, function(err) {
                     if (err) {
                       remote.dialog.showErrorBox(
@@ -106,11 +112,15 @@ export default {
                       );
                       that.loading = false;
                       throw err;
+                    } else {
+                      let timer = setInterval(() => {
+                        that.loading = false;
+                        clearInterval(timer);
+                      }, 1000);
+
+                      const { shell } = require("electron").remote;
+                      shell.showItemInFolder(src);
                     }
-                    let timer = setInterval(() => {
-                      that.loading = false;
-                      clearInterval(timer);
-                    }, 1000);
                   });
                 }
               });
@@ -142,6 +152,9 @@ export default {
     position: relative;
     margin: 0 auto;
     margin-top: 100px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
   [type="file"] {
     width: 0.1px;
