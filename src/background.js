@@ -5,6 +5,7 @@ import {
   createProtocol
   // installVueDevtools
 } from "vue-cli-plugin-electron-builder/lib";
+import { autoUpdater } from "electron-updater";
 const isDevelopment = process.env.NODE_ENV !== "production";
 const globalShortcut = electron.globalShortcut;
 // Keep a global reference of the window object, if you don't, the window will
@@ -38,6 +39,7 @@ function createWindow() {
     createProtocol("app");
     // Load the index.html when not in development
     win.loadURL("app://./index.html");
+    autoUpdater.checkForUpdatesAndNotify();
   }
 
   win.on("closed", () => {

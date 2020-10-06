@@ -16,6 +16,7 @@
   "main": "background.js",
   "dependencies": {
     "core-js": "^3.4.3",
+    "electron-updater": "^4.3.5",
     "md5": "^2.3.0",
     "normalize.css": "^8.0.1",
     "request": "^2.88.2",
