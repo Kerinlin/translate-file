@@ -105,7 +105,7 @@ export default {
                     });
                   } else {
                     // 翻译失败
-                    console.log("sb");
+                    // console.log("sb");
                   }
                 });
               });
