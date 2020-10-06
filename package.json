@@ -1,7 +1,9 @@
 {
-  "name": "electron-vue-demo",
+  "name": "translatefile",
   "version": "0.1.5",
   "private": true,
+  "author": "kerinlin",
+  "description": "Calculate for audio",
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
