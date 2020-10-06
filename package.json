@@ -2,7 +2,7 @@
   "name": "translatefile",
   "version": "0.1.5",
   "private": true,
-  "author": "kerinlin",
+  "author": "Kerinlin",
   "description": "Calculate for audio",
   "scripts": {
     "serve": "vue-cli-service serve",
