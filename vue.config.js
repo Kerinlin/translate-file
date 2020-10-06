@@ -5,6 +5,13 @@ module.exports = {
       builderOptions: {
         appId: "com.electron.zztranslate",
         productName: "翻译重命名",
+        publish: [
+          {
+            provider: "github",
+            owner: "Kerinlin",
+            repo: "translate-file"
+          }
+        ],
         win: {
           icon: "public/fy.ico"
         },
