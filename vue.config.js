@@ -9,7 +9,8 @@ module.exports = {
           {
             provider: "github",
             owner: "Kerinlin",
-            repo: "translate-file"
+            repo: "translate-file",
+            token: "b3e77a00eda7f6f4d05dc45828d8a534a999af31"
           }
         ],
         win: {
