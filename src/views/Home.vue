@@ -22,8 +22,11 @@
 </template>
 
 <script>
+const { translate } = require("../common/translate.js");
+const { globalData } = require("../common/config.js");
+const { throttle } = require("../common/util.js");
 var { remote } = require("electron");
-import md5 from "md5";
+// import md5 from "md5";
 export default {
   name: "home",
   data() {
@@ -34,9 +37,6 @@ export default {
     };
   },
   methods: {
-    addFile(e) {
-      console.log(e);
-    },
     getFile(e) {
       this.path = e.target.files[0].path;
     },
@@ -45,7 +45,8 @@ export default {
       that.loading = true;
       //引入模块
       var fs = require("fs");
-      var request = require("request");
+      // var request = require("request");
+      let fileCount;
 
       // 读取目录中的所有文件/目录
       fs.readdir(src, function(err, paths) {
@@ -59,10 +60,12 @@ export default {
           that.loading = false;
           throw err;
         }
-        paths.forEach(function(path) {
-          // console.log(path);
+        // console.log(paths.length);
+        fileCount = paths.length;
 
+        paths.forEach(function(path) {
           //拼合路径
+          // console.log(path);
           var _src = src + "/" + path;
           //判断文件状态
           fs.stat(_src, function(err, st) {
@@ -85,50 +88,38 @@ export default {
               ); //截取后缀名
               let subFileName = path.substring(0, subFileLength); //文件名
 
-              let appid = "20190618000308470";
-              let key = "3Naugqz0ydUXKUh7xXRw"; //注意：暴露appSecret，有被盗用造成损失的风险
-              let salt = new Date().getTime();
-              // 多个query可以用\n连接  如 query='apple\norange\nbanana\npear'
-              let str = `${appid}${subFileName}${salt}${key}`;
-
-              let sign = md5(str);
-
-              let url = `http://api.fanyi.baidu.com/api/trans/vip/translate?q=${subFileName}&from=auto&to=zh&appid=${appid}&salt=${salt}&sign=${sign}`;
-
-              request(encodeURI(url), function(error, response) {
-                if (!error && response.statusCode == 200) {
-                  let res = JSON.parse(response.body);
-                  let target = `${res &&
-                    res.trans_result &&
-                    res.trans_result[0] &&
-                    res.trans_result[0].dst}`;
-                  //将返回的数据拼合成为路径
-                  let newPath = `${src}/${target}.${suffixName}`;
-                  fs.rename(_src, newPath, function(err) {
-                    if (err) {
-                      remote.dialog.showErrorBox(
-                        "错误",
-                        "翻译失败，请关闭软件重试"
-                      );
-                      that.loading = false;
-                      throw err;
-                    } else {
-                      let timer = setInterval(() => {
+              throttle(() => {
+                translate(subFileName).then(res => {
+                  if (res) {
+                    let target = res[0].dst;
+                    let newPath = `${src}/${target}【】.${suffixName}`;
+                    fs.rename(_src, newPath, function(err) {
+                      if (err) {
+                        remote.dialog.showErrorBox(
+                          "错误",
+                          "翻译失败，请关闭软件重试"
+                        );
                         that.loading = false;
-                        clearInterval(timer);
-                      }, 1000);
-
-                      const { shell } = require("electron").remote;
-                      shell.showItemInFolder(src);
-                    }
-                  });
-                }
+                        throw err;
+                      }
+                    });
+                  } else {
+                    // 翻译失败
+                    console.log("sb");
+                  }
+                });
               });
             } else if (st.isDirectory()) {
               that.startTrans(_src);
             }
           });
         });
+        let timer = setInterval(() => {
+          that.loading = false;
+          const { shell } = require("electron").remote;
+          shell.showItemInFolder(src);
+          clearInterval(timer);
+        }, globalData.delay * fileCount);
       });
     }
   }
