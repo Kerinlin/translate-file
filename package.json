@@ -1,6 +1,6 @@
 {
   "name": "translatefile",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "private": true,
   "author": "Kerinlin",
   "description": "translate and rename filename",
@@ -17,6 +17,7 @@
   "main": "background.js",
   "dependencies": {
     "core-js": "^3.4.3",
+    "electron-updater": "^4.3.5",
     "md5": "^2.3.0",
     "normalize.css": "^8.0.1",
     "request": "^2.88.2",
