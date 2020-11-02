@@ -137,12 +137,12 @@ export default {
     background-color: transparent;
     font-family: "HappyZcool-2016236609138a226c2";
     border-radius: 4px;
-    height: 140px;
+    height: 100px;
     width: 60%;
     border: 2px dashed #e0dfd5;
     position: relative;
     margin: 0 auto;
-    margin-top: 100px;
+    margin-top: 30px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -166,15 +166,15 @@ export default {
     font-style: normal;
   }
   .filename {
-    font-size: 20px;
-    line-height: 140px;
+    font-size: 16px;
+    line-height: 100px;
   }
 
   .button {
     position: relative;
     height: 50px;
     width: 200px;
-    top: 100px;
+    top: 50px;
     left: calc(50vw - 100px);
     background-image: none;
     border: 1px dashed #fff;
