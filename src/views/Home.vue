@@ -1,6 +1,6 @@
 <template>
   <div class="home">
-    <div class="input-wrapper" @dragover.prevent @drop.prevent="addFile">
+    <div class="input-wrapper" @drop.prevent="addFile">
       <label for="attach-project-file">
         <div class="filename" id="attached-project-file">{{ path }}</div>
       </label>
@@ -130,6 +130,7 @@ export default {
 .home {
   width: 100%;
   label {
+    -webkit-app-region: no-drag;
     cursor: pointer;
     display: block;
     text-align: center;
@@ -171,6 +172,7 @@ export default {
   }
 
   .button {
+    -webkit-app-region: no-drag;
     position: relative;
     height: 50px;
     width: 200px;
