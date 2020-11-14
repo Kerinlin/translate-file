@@ -1,8 +1,16 @@
 <template>
-  <div class="home">
-    <div class="input-wrapper" @drop.prevent="addFile">
+  <div class="home" @drop.prevent="addFile" @dragover.prevent>
+    <div class="input-wrapper">
       <label for="attach-project-file">
-        <div class="filename" id="attached-project-file">{{ path }}</div>
+        <div class="filename" v-if="!path" id="attached-project-file">
+          点击选择或者拖拽文件或者目录
+        </div>
+        <div class="filename" v-if="path && !notice" id="attached-project-file">
+          {{ path }}
+        </div>
+        <div class="filename" v-if="path && notice" id="attached-project-file">
+          {{ notice }}
+        </div>
       </label>
       <input
         @change="getFile"
@@ -26,30 +34,73 @@ const { translate } = require("../common/translate.js");
 const { globalData } = require("../common/config.js");
 const { throttle } = require("../common/util.js");
 var { remote } = require("electron");
-// import md5 from "md5";
+const path = require("path");
+const fs = require("fs");
+
 export default {
   name: "home",
   data() {
     return {
-      path: "点击选择需要翻译的目录",
+      path: "",
       loading: false,
-      back: false
+      back: false,
+      droppedFiles: [],
+      isDropMulti: false,
+      notice: ""
     };
   },
   methods: {
+    addFile(e) {
+      e.preventDefault();
+      this.droppedFiles = e.dataTransfer.files;
+      // console.log(this.droppedFiles);
+
+      // 处理多个文件一起拖拽的情况
+      if (this.droppedFiles.length > 1) {
+        // 只有在同一个目录下才能多选，所以获取到第一个的父级目录就可以了
+        this.path = path.dirname(this.droppedFiles[0].path);
+        // 标记是否是多选
+        this.isDropMulti = true;
+      } else {
+        this.path = this.droppedFiles[0].path;
+      }
+    },
     getFile(e) {
       this.path = e.target.files[0].path;
     },
-    startTrans(src) {
-      var that = this;
-      that.loading = true;
-      //引入模块
-      var fs = require("fs");
-      // var request = require("request");
+
+    checkName(fileName) {
+      let newFile;
+      const isRename = fileName.includes("【】");
+      isRename ? (newFile = fileName) : (newFile = `${fileName}【】`);
+      return newFile;
+    },
+
+    // 多个拖拽文件的翻译
+    mapTargetFiles(dir, fileArray) {
+      let fileCount = fileArray.length;
+      fileArray.forEach(file => {
+        // console.log(file);
+        let filePath = file.path;
+        let fileItem = file.name;
+        let suffixName = path.extname(fileItem);
+        let initSubFileName = fileItem.split(suffixName)[0];
+        this.translateFile(filePath, dir, initSubFileName, suffixName);
+      });
+      let timer = setInterval(() => {
+        this.loading = false;
+        const { shell } = require("electron").remote;
+        shell.showItemInFolder(dir);
+        clearInterval(timer);
+      }, globalData.delay * fileCount);
+    },
+
+    // 翻译目录下的文件
+    transDirFiles(dirPath) {
       let fileCount;
 
       // 读取目录中的所有文件/目录
-      fs.readdir(src, function(err, paths) {
+      fs.readdir(dirPath, (err, files) => {
         if (err) {
           // throw err;
           remote.dialog.showMessageBox({
@@ -57,70 +108,133 @@ export default {
             title: "确认",
             message: "请确认是否选择了目录"
           });
-          that.loading = false;
+          this.loading = false;
           throw err;
         }
-        // console.log(paths.length);
-        fileCount = paths.length;
 
-        paths.forEach(function(path) {
-          //拼合路径
-          // console.log(path);
-          var _src = src + "/" + path;
-          //判断文件状态
-          fs.stat(_src, function(err, st) {
+        fileCount = files.length;
+
+        files.forEach(fileItem => {
+          // 文件夹内文件的绝对路劲
+          let fullPath = path.resolve(dirPath, fileItem);
+
+          // 检查文件状态
+          fs.stat(fullPath, (err, stat) => {
             if (err) {
               throw err;
             }
             // 判断是否为文件
-            if (st.isFile()) {
-              // console.log(path);
-              // let query = path.split('.')[0];
-              // let dot = path.split('.')[1];
-              // // console.log(query);
-              // word = query;
-              let subFileLength = path.lastIndexOf("."); //获取到文件名开始到最后一个“.”的长度。
-              let fullFileLength = path.length; //获取到文件名长度
+            if (stat.isFile()) {
+              // 获取文件的后缀格式
+              let suffixName = path.extname(fileItem);
 
-              let suffixName = path.substring(
-                subFileLength + 1,
-                fullFileLength
-              ); //截取后缀名
-              let subFileName = path.substring(0, subFileLength); //文件名
+              // 获取前缀
+              let initSubFileName = fileItem.split(suffixName)[0];
 
-              throttle(() => {
-                translate(subFileName).then(res => {
-                  if (res) {
-                    let target = res[0].dst;
-                    let newPath = `${src}/${target}【】.${suffixName}`;
-                    fs.rename(_src, newPath, function(err) {
-                      if (err) {
-                        remote.dialog.showErrorBox(
-                          "错误",
-                          "翻译失败，请关闭软件重试"
-                        );
-                        that.loading = false;
-                        throw err;
-                      }
-                    });
-                  } else {
-                    // 翻译失败
-                    // console.log("sb");
-                  }
-                });
-              });
-            } else if (st.isDirectory()) {
-              that.startTrans(_src);
+              this.translateFile(
+                fullPath,
+                dirPath,
+                initSubFileName,
+                suffixName
+              );
+            } else if (stat.isDirectory()) {
+              this.startTrans(dirPath);
             }
           });
         });
         let timer = setInterval(() => {
-          that.loading = false;
+          this.loading = false;
           const { shell } = require("electron").remote;
-          shell.showItemInFolder(src);
+          shell.showItemInFolder(dirPath);
           clearInterval(timer);
         }, globalData.delay * fileCount);
       });
+    },
+
+    transSingle(filePath) {
+      let fileItem = path.basename(filePath);
+
+      let dirPath = path.dirname(filePath);
+      // console.log(path);
+      let suffixName = path.extname(fileItem);
+
+      let initSubFileName = fileItem.split(suffixName)[0];
+
+      this.translateFile(filePath, dirPath, initSubFileName, suffixName);
+
+      let timer = setInterval(() => {
+        this.loading = false;
+        const { shell } = require("electron").remote;
+        shell.showItemInFolder(dirPath);
+        clearInterval(timer);
+      }, 1000);
+    },
+
+    /**
+     * oldPath: 未翻译前的文件夹路径
+     * dirPath: 文件的父级目录
+     * initSubFileName: 文件的前缀名,比如 a.html => a
+     * suffixName: 文件的后缀名,比如 a.html => .html
+     */
+    translateFile(oldPath, dirPath, initSubFileName, suffixName) {
+      throttle(() => {
+        translate(initSubFileName).then(res => {
+          if (res) {
+            // 如果有【】保留文件名,如果没有就加上【】
+            let target = this.checkName(res[0].dst);
+
+            // 拼接带后缀的文件名
+            let fullSuffixName = `${target}${suffixName}`;
+
+            // 翻译后的文件路径
+            let newPath = path.resolve(dirPath, fullSuffixName);
+
+            // 重命名
+            fs.rename(oldPath, newPath, err => {
+              if (err) {
+                remote.dialog.showErrorBox("错误", "翻译失败，请关闭软件重试");
+                this.loading = false;
+                throw err;
+              }
+              console.log(`${initSubFileName} 已翻译成 ${fullSuffixName}`);
+              this.notice = `${initSubFileName} 已翻译成 ${fullSuffixName}`;
+            });
+          } else {
+            // 翻译失败
+            console.log("翻译接口服务出错");
+          }
+        });
+      });
+    },
+
+    async startTrans(path) {
+      this.loading = true;
+
+      if (!path) {
+        remote.dialog.showMessageBox({
+          type: "info",
+          title: "确认",
+          message: "请确认是否选择了文件或者目录"
+        });
+        this.loading = false;
+        return false;
+      }
+
+      // 当拖动的是文件夹或者单个文件，或者通过点击获取文件夹的时候
+      if (!this.isDropMulti) {
+        const res = await fs.statSync(path);
+        const isDir = res.isDirectory();
+        if (isDir) {
+          // 处理文件夹
+          this.transDirFiles(path);
+        } else {
+          // 处理单个文件
+          this.transSingle(path);
+        }
+      } else {
+        // 翻译拖拽多选的文件
+        this.mapTargetFiles(path, this.droppedFiles);
+      }
     }
   }
 };
@@ -128,7 +242,9 @@ export default {
 
 <style lang="less" scoped>
 .home {
+  -webkit-app-region: no-drag;
   width: 100%;
+  height: 100vh;
   label {
     -webkit-app-region: no-drag;
     cursor: pointer;
@@ -167,8 +283,13 @@ export default {
     font-style: normal;
   }
   .filename {
+    width: 90%;
     font-size: 16px;
     line-height: 100px;
+    margin: 0 auto;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .button {
