@@ -56,7 +56,7 @@ export default {
         false
       );
 
-      console.log(this.droppedFiles);
+      // console.log(this.droppedFiles);
 
       // 处理多个文件一起拖拽的情况
       if (this.droppedFiles.length > 1) {
@@ -72,9 +72,11 @@ export default {
       this.path = e.target.files[0].path;
     },
 
+    // 检查文件名中是否存在【】[]
     checkName(fileName) {
       let newFile;
-      const isRename = fileName.includes("【】");
+      const reg = /[[\]【】\s]/g;
+      const isRename = reg.test(fileName);
       isRename ? (newFile = fileName) : (newFile = `${fileName}【】`);
       return newFile;
     },
@@ -89,7 +91,7 @@ export default {
         let filePath = file.path;
         let fileItem = file.name;
         let suffixName = path.extname(fileItem);
-        let initSubFileName = fileItem.split(suffixName)[0];
+        let initSubFileName = this.removeSymbol(fileItem.split(suffixName)[0]);
         this.translateFile(filePath, dir, initSubFileName, suffixName);
       });
       let timer = setInterval(() => {
@@ -134,7 +136,9 @@ export default {
               let suffixName = path.extname(fileItem);
 
               // 获取前缀
-              let initSubFileName = fileItem.split(suffixName)[0];
+              let initSubFileName = this.removeSymbol(
+                fileItem.split(suffixName)[0]
+              );
 
               this.translateFile(
                 fullPath,
@@ -156,6 +160,14 @@ export default {
       });
     },
 
+    // 移除文件名中的特殊字符
+    removeSymbol(fileName) {
+      // console.log(fileName);
+      const reg = /[`~!@#$^&*%()=|{}':;',.<>\\/?~！@#￥……&*（）——|{}'；：""'。，、？\s]/g;
+      const newFile = fileName.replace(reg, " ");
+      return newFile;
+    },
+
     transSingle(filePath) {
       let fileItem = path.basename(filePath);
 
@@ -163,8 +175,7 @@ export default {
       // console.log(path);
       let suffixName = path.extname(fileItem);
 
-      let initSubFileName = fileItem.split(suffixName)[0];
-
+      let initSubFileName = this.removeSymbol(fileItem.split(suffixName)[0]);
       this.translateFile(filePath, dirPath, initSubFileName, suffixName);
 
       let timer = setInterval(() => {
