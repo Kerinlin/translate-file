@@ -5,11 +5,8 @@
         <div class="filename" v-if="!path" id="attached-project-file">
           点击选择或者拖拽文件或者目录
         </div>
-        <div class="filename" v-if="path && !notice" id="attached-project-file">
+        <div class="filename" v-if="path" id="attached-project-file">
           {{ path }}
-        </div>
-        <div class="filename" v-if="path && notice" id="attached-project-file">
-          {{ notice }}
         </div>
       </label>
       <input
@@ -45,15 +42,21 @@ export default {
       loading: false,
       back: false,
       droppedFiles: [],
-      isDropMulti: false,
-      notice: ""
+      isDropMulti: false
     };
   },
   methods: {
     addFile(e) {
-      e.preventDefault();
-      this.droppedFiles = e.dataTransfer.files;
-      // console.log(this.droppedFiles);
+      this.droppedFiles = [];
+      [].forEach.call(
+        e.dataTransfer.files,
+        file => {
+          this.droppedFiles.push(file);
+        },
+        false
+      );
+
+      console.log(this.droppedFiles);
 
       // 处理多个文件一起拖拽的情况
       if (this.droppedFiles.length > 1) {
@@ -79,6 +82,8 @@ export default {
     // 多个拖拽文件的翻译
     mapTargetFiles(dir, fileArray) {
       let fileCount = fileArray.length;
+      console.log(fileArray);
+      console.log(fileCount);
       fileArray.forEach(file => {
         // console.log(file);
         let filePath = file.path;
@@ -197,11 +202,17 @@ export default {
                 throw err;
               }
               console.log(`${initSubFileName} 已翻译成 ${fullSuffixName}`);
-              this.notice = `${initSubFileName} 已翻译成 ${fullSuffixName}`;
+              this.path = `${initSubFileName} 已翻译成 ${fullSuffixName}`;
             });
           } else {
             // 翻译失败
             console.log("翻译接口服务出错");
+            remote.dialog.showMessageBox({
+              type: "error",
+              title: "错误",
+              message: "翻译接口服务出错"
+            });
+            this.loading = false;
           }
         });
       });
