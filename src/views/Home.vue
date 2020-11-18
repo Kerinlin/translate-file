@@ -47,14 +47,16 @@ export default {
   },
   methods: {
     addFile(e) {
-      this.droppedFiles = [];
-      [].forEach.call(
-        e.dataTransfer.files,
-        file => {
-          this.droppedFiles.push(file);
-        },
-        false
-      );
+      // 将伪数组转换成数组
+      this.droppedFiles = [...e.dataTransfer.files];
+
+      // [].forEach.call(
+      //   e.dataTransfer.files,
+      //   file => {
+      //     this.droppedFiles.push(file);
+      //   },
+      //   false
+      // );
 
       // console.log(this.droppedFiles);
 
