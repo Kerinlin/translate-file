@@ -30,9 +30,10 @@
 const { translate } = require("../common/translate.js");
 const { globalData } = require("../common/config.js");
 const { throttle } = require("../common/util.js");
-var { remote } = require("electron");
+const { remote } = require("electron").remote;
 const path = require("path");
 const fs = require("fs");
+const { shell } = require("electron").remote;
 
 export default {
   name: "home",
@@ -98,7 +99,6 @@ export default {
       });
       let timer = setInterval(() => {
         this.loading = false;
-        const { shell } = require("electron").remote;
         shell.showItemInFolder(dir);
         clearInterval(timer);
       }, globalData.delay * fileCount);
@@ -155,7 +155,6 @@ export default {
         });
         let timer = setInterval(() => {
           this.loading = false;
-          const { shell } = require("electron").remote;
           shell.showItemInFolder(dirPath);
           clearInterval(timer);
         }, globalData.delay * fileCount);
@@ -165,7 +164,7 @@ export default {
     // 移除文件名中的特殊字符
     removeSymbol(fileName) {
       // console.log(fileName);
-      const reg = /[`~!@#$^&*%()=|{}':;',.<>\\/?~！@#￥……&*（）——|{}'；：""'。，、？\s]/g;
+      const reg = /[`~_!@#$^&*%()=|{}':;',.<>\\/?~！@#￥……&*（）——|{}'；：""'。，、？\s]/g;
       const newFile = fileName.replace(reg, " ");
       return newFile;
     },
@@ -182,7 +181,6 @@ export default {
 
       let timer = setInterval(() => {
         this.loading = false;
-        const { shell } = require("electron").remote;
         shell.showItemInFolder(dirPath);
         clearInterval(timer);
       }, 1000);
@@ -199,13 +197,13 @@ export default {
         translate(initSubFileName).then(res => {
           if (res) {
             // 如果有【】保留文件名,如果没有就加上【】
-            let target = this.checkName(res[0].dst);
+            const target = this.checkName(res[0].dst);
 
             // 拼接带后缀的文件名
-            let fullSuffixName = `${target}${suffixName}`;
+            const fullSuffixName = `${target}${suffixName}`;
 
             // 翻译后的文件路径
-            let newPath = path.resolve(dirPath, fullSuffixName);
+            const newPath = path.resolve(dirPath, fullSuffixName);
 
             // 重命名
             fs.rename(oldPath, newPath, err => {
@@ -247,14 +245,11 @@ export default {
       // 当拖动的是文件夹或者单个文件，或者通过点击获取文件夹的时候
       if (!this.isDropMulti) {
         const res = await fs.statSync(path);
+
+        // 判断拖入的文件夹是否是目录
         const isDir = res.isDirectory();
-        if (isDir) {
-          // 处理文件夹
-          this.transDirFiles(path);
-        } else {
-          // 处理单个文件
-          this.transSingle(path);
-        }
+
+        isDir ? this.transDirFiles(path) : this.transSingle(path);
       } else {
         // 翻译拖拽多选的文件
         this.mapTargetFiles(path, this.droppedFiles);
