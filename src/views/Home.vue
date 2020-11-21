@@ -51,14 +51,6 @@ export default {
       // 将伪数组转换成数组
       this.droppedFiles = [...e.dataTransfer.files];
 
-      // [].forEach.call(
-      //   e.dataTransfer.files,
-      //   file => {
-      //     this.droppedFiles.push(file);
-      //   },
-      //   false
-      // );
-
       // console.log(this.droppedFiles);
 
       // 处理多个文件一起拖拽的情况
@@ -86,18 +78,20 @@ export default {
 
     // 多个拖拽文件的翻译
     mapTargetFiles(dir, fileArray) {
-      let fileCount = fileArray.length;
-      console.log(fileArray);
-      console.log(fileCount);
+      const fileCount = fileArray.length;
+      // console.log(fileArray);
+      // console.log(fileCount);
       fileArray.forEach(file => {
         // console.log(file);
-        let filePath = file.path;
-        let fileItem = file.name;
-        let suffixName = path.extname(fileItem);
-        let initSubFileName = this.removeSymbol(fileItem.split(suffixName)[0]);
+        const filePath = file.path;
+        const fileItem = file.name;
+        const suffixName = path.extname(fileItem);
+        const initSubFileName = this.removeSymbol(
+          fileItem.split(suffixName)[0]
+        );
         this.translateFile(filePath, dir, initSubFileName, suffixName);
       });
-      let timer = setInterval(() => {
+      const timer = setInterval(() => {
         this.loading = false;
         shell.showItemInFolder(dir);
         clearInterval(timer);
@@ -125,7 +119,7 @@ export default {
 
         files.forEach(fileItem => {
           // 文件夹内文件的绝对路劲
-          let fullPath = path.resolve(dirPath, fileItem);
+          const fullPath = path.resolve(dirPath, fileItem);
 
           // 检查文件状态
           fs.stat(fullPath, (err, stat) => {
@@ -135,10 +129,10 @@ export default {
             // 判断是否为文件
             if (stat.isFile()) {
               // 获取文件的后缀格式
-              let suffixName = path.extname(fileItem);
+              const suffixName = path.extname(fileItem);
 
               // 获取前缀
-              let initSubFileName = this.removeSymbol(
+              const initSubFileName = this.removeSymbol(
                 fileItem.split(suffixName)[0]
               );
 
@@ -153,7 +147,7 @@ export default {
             }
           });
         });
-        let timer = setInterval(() => {
+        const timer = setInterval(() => {
           this.loading = false;
           shell.showItemInFolder(dirPath);
           clearInterval(timer);
@@ -170,16 +164,16 @@ export default {
     },
 
     transSingle(filePath) {
-      let fileItem = path.basename(filePath);
+      const fileItem = path.basename(filePath);
 
-      let dirPath = path.dirname(filePath);
+      const dirPath = path.dirname(filePath);
       // console.log(path);
-      let suffixName = path.extname(fileItem);
+      const suffixName = path.extname(fileItem);
 
-      let initSubFileName = this.removeSymbol(fileItem.split(suffixName)[0]);
+      const initSubFileName = this.removeSymbol(fileItem.split(suffixName)[0]);
       this.translateFile(filePath, dirPath, initSubFileName, suffixName);
 
-      let timer = setInterval(() => {
+      const timer = setInterval(() => {
         this.loading = false;
         shell.showItemInFolder(dirPath);
         clearInterval(timer);
@@ -327,7 +321,7 @@ export default {
     color: white;
     text-transform: uppercase;
     font-size: 20px;
-    letter-spacing: 2px;
+    constter-spacing: 2px;
     cursor: pointer;
     transition: all 0.2s ease-out;
     &:hover {

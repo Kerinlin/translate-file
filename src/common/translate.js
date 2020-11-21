@@ -1,11 +1,11 @@
 const md5 = require("md5");
-var rp = require("request-promise");
+const rp = require("request-promise");
 const { globalData } = require("./config.js");
 
 function translate(msg = "") {
   const q = msg;
-  const salt = parseInt(Math.random() * 1000000000);
-  const sign = md5(globalData.appid + q + salt + globalData.key);
+  const salt = parseInt(Math.random() * 1000000000); //加盐
+  const sign = md5(globalData.appid + q + salt + globalData.key); //生成签名
   const params = encodeURI(
     `q=${q}&from=auto&to=${globalData.to}&appid=${globalData.appid}&salt=${salt}&sign=${sign}`
   );
