@@ -265,7 +265,6 @@ export default {
     text-align: center;
     color: #fff;
     background-color: transparent;
-    font-family: "HappyZcool-2016236609138a226c2";
     border-radius: 4px;
     height: 100px;
     width: 60%;
@@ -314,7 +313,6 @@ export default {
     left: calc(50vw - 100px);
     background-image: none;
     border: 1px dashed #fff;
-    font-family: "HappyZcool-2016236609138a226c2";
     outline: none;
     background-color: transparent;
     border-radius: 1px;
@@ -376,9 +374,6 @@ export default {
     border-bottom: 4px solid transparent;
     border-radius: 100%;
     animation: spin 0.6s ease-out infinite;
-  }
-  .loadin-btn {
-    font-family: "HappyZcool-2016236609138a226c2";
   }
   @keyframes spin {
     100% {
