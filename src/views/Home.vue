@@ -30,10 +30,9 @@
 const { translate } = require("../common/translate.js");
 const { globalData } = require("../common/config.js");
 const { throttle } = require("../common/util.js");
-const { remote } = require("electron").remote;
 const path = require("path");
 const fs = require("fs");
-const { shell } = require("electron").remote;
+const { shell, dialog } = require("electron").remote;
 
 export default {
   name: "home",
@@ -106,7 +105,7 @@ export default {
       fs.readdir(dirPath, (err, files) => {
         if (err) {
           // throw err;
-          remote.dialog.showMessageBox({
+          dialog.showMessageBox({
             type: "info",
             title: "确认",
             message: "请确认是否选择了目录"
@@ -143,7 +142,8 @@ export default {
                 suffixName
               );
             } else if (stat.isDirectory()) {
-              this.startTrans(dirPath);
+              // 递归翻译
+              this.startTrans(fullPath);
             }
           });
         });
@@ -202,7 +202,7 @@ export default {
             // 重命名
             fs.rename(oldPath, newPath, err => {
               if (err) {
-                remote.dialog.showErrorBox("错误", "翻译失败，请关闭软件重试");
+                dialog.showErrorBox("错误", "翻译失败，请关闭软件重试");
                 this.loading = false;
                 throw err;
               }
@@ -212,7 +212,7 @@ export default {
           } else {
             // 翻译失败
             console.log("翻译接口服务出错");
-            remote.dialog.showMessageBox({
+            dialog.showMessageBox({
               type: "error",
               title: "错误",
               message: "翻译接口服务出错"
@@ -223,14 +223,14 @@ export default {
       });
     },
 
-    async startTrans(path) {
+    async startTrans(filePath) {
       this.loading = true;
 
-      if (!path) {
-        remote.dialog.showMessageBox({
+      if (!filePath || !path.isAbsolute(filePath)) {
+        dialog.showMessageBox({
           type: "info",
           title: "确认",
-          message: "请确认是否选择了文件或者目录"
+          message: "请确认路径是否正确"
         });
         this.loading = false;
         return false;
@@ -238,15 +238,15 @@ export default {
 
       // 当拖动的是文件夹或者单个文件，或者通过点击获取文件夹的时候
       if (!this.isDropMulti) {
-        const res = await fs.statSync(path);
+        const res = await fs.statSync(filePath);
 
         // 判断拖入的文件夹是否是目录
         const isDir = res.isDirectory();
 
-        isDir ? this.transDirFiles(path) : this.transSingle(path);
+        isDir ? this.transDirFiles(filePath) : this.transSingle(filePath);
       } else {
         // 翻译拖拽多选的文件
-        this.mapTargetFiles(path, this.droppedFiles);
+        this.mapTargetFiles(filePath, this.droppedFiles);
       }
     }
   }
@@ -321,7 +321,7 @@ export default {
     color: white;
     text-transform: uppercase;
     font-size: 20px;
-    constter-spacing: 2px;
+    letter-spacing: 2px;
     cursor: pointer;
     transition: all 0.2s ease-out;
     &:hover {
