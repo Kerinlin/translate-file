@@ -91,7 +91,7 @@ module.exports = {
       fs.readdir(dirPath, (err, files) => {
         if (err) {
           // throw err;
-          remote.dialog.showMessageBox({
+            dialog.showMessageBox({
             type: 'info',
             title: '确认',
             message: '请确认是否选择了目录',
@@ -217,7 +217,7 @@ module.exports = {
           } else {
             // 翻译失败
             console.log("翻译接口服务出错");
-            remote.dialog.showMessageBox({
+              dialog.showMessageBox({
               type: "error",
               title: "错误",
               message: "翻译接口服务出错"
@@ -233,7 +233,7 @@ module.exports = {
 ```javascript
             fs.rename(oldPath, newPath, err => {
               if (err) {
-                remote.dialog.showErrorBox("错误", "翻译失败，请关闭软件重试");
+                dialog.showErrorBox("错误", "翻译失败，请关闭软件重试");
                 this.loading = false;
                 throw err;
               }
