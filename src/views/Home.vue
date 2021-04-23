@@ -200,7 +200,7 @@ export default {
             const target = this.checkName(res[0].dst);
 
             // 拼接带后缀的文件名
-            const fullSuffixName = `${target}${suffixName}`;
+            const fullSuffixName = `${initSubFileName} ${target}${suffixName}`;
 
             // 翻译后的文件路径
             const newPath = path.resolve(dirPath, fullSuffixName);
