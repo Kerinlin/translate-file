@@ -76,11 +76,13 @@ export default {
     },
 
     // 检查文件名中是否存在【】[]
-    checkName(fileName) {
-      let newFile;
-      const reg = /[[\]【】\s]/g;
-      const isRename = reg.test(fileName);
-      isRename ? (newFile = fileName) : (newFile = `${fileName}【】`);
+    checkName(fileName, origin) {
+      // let newFile;
+      // const reg = /[[\]【】\s]/g;
+      // const isRename = reg.test(fileName);
+      // console.log({isRename});
+      // isRename ? (newFile = fileName) : (newFile = `${fileName} ${origin}【】`);
+      let newFile = `${origin}${fileName}`;
       return newFile;
     },
 
@@ -197,10 +199,12 @@ export default {
         translate(initSubFileName).then(res => {
           if (res) {
             // 如果有【】保留文件名,如果没有就加上【】
-            const target = this.checkName(res[0].dst);
+
+            const target = this.checkName(res[0].dst, initSubFileName);
+            // console.log({initSubFileName,target});
 
             // 拼接带后缀的文件名
-            const fullSuffixName = `${initSubFileName} ${target}${suffixName}`;
+            const fullSuffixName = `${target}${suffixName}`;
 
             // 翻译后的文件路径
             const newPath = path.resolve(dirPath, fullSuffixName);
