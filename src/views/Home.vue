@@ -82,7 +82,7 @@ export default {
       // const isRename = reg.test(fileName);
       // console.log({isRename});
       // isRename ? (newFile = fileName) : (newFile = `${fileName} ${origin}【】`);
-      let newFile = `${origin}${fileName}`;
+      let newFile = `${fileName}${origin} 【】`;
       return newFile;
     },
 

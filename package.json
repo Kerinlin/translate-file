@@ -1,6 +1,6 @@
 {
   "name": "translatefile",
-  "version": "0.3.0",
+  "version": "0.3.3",
   "private": true,
   "author": "Kerinlin",
   "description": "translate and rename filename",
@@ -32,7 +32,7 @@
     "@vue/cli-service": "^4.1.0",
     "@vue/eslint-config-prettier": "^5.0.0",
     "babel-eslint": "^10.0.3",
-    "electron": "^6.0.0",
+    "electron": "^6.1.12",
     "eslint": "^5.16.0",
     "eslint-plugin-prettier": "^3.1.1",
     "eslint-plugin-vue": "^5.0.0",
@@ -40,7 +40,7 @@
     "less-loader": "^5.0.0",
     "lint-staged": "^9.4.3",
     "prettier": "^1.19.1",
-    "vue-cli-plugin-electron-builder": "^1.4.4",
+    "vue-cli-plugin-electron-builder": "^1.4.6",
     "vue-template-compiler": "^2.6.10"
   },
   "gitHooks": {
@@ -51,5 +51,6 @@
       "vue-cli-service lint",
       "git add"
     ]
-  }
+  },
+  "__npminstall_done": false
 }
