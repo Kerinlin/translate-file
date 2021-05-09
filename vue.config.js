@@ -4,7 +4,7 @@ module.exports = {
     electronBuilder: {
       builderOptions: {
         appId: "com.electron.zztranslate",
-        productName: "翻译重命名(中文)",
+        productName: "翻译重命名(中文舟舟专属)",
         win: {
           icon: "public/fy.ico"
         },
