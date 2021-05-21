@@ -2,17 +2,17 @@ const md5 = require("md5");
 var rp = require("request-promise");
 const { globalData } = require("./config.js");
 
-function translate(msg = "") {
+function translate(msg = "", appid, key) {
   const q = msg;
   const salt = parseInt(Math.random() * 1000000000);
-  // console.log(globalData.appid, globalData.key);
-  let str = `${globalData.appid}${q}${salt}${globalData.key}`;
+  // console.log(globalData.appid, key);
+  let str = `${appid}${q}${salt}${key}`;
   const sign = md5(str);
   console.log({ str });
-  // console.log(globalData.appid + q + salt + globalData.key);
+  // console.log(appid + q + salt + key);
   console.log({ sign });
   const query = encodeURI(q);
-  const params = `q=${query}&from=en&to=${globalData.to}&appid=${globalData.appid}&salt=${salt}&sign=${sign}`;
+  const params = `q=${query}&from=en&to=${globalData.to}&appid=${appid}&salt=${salt}&sign=${sign}`;
 
   console.log({ params });
   const options = {

@@ -1,9 +1,24 @@
 <template>
   <div id="app">
     <header class="header-container">
+      <i @click="openConfig" class="fa fa-cog" aria-hidden="true"></i>
       <i @click="minimize" class="fa fa-minus" aria-hidden="true"></i>
       <i @click="close" class="fa fa-times" aria-hidden="true"></i>
     </header>
+
+    <div class="config-wrapper" v-if="isOpen">
+      <div class="input-item">
+        <p>APPID</p>
+        <input v-model="appid" type="text" />
+      </div>
+
+      <div class="input-item">
+        <p>KEY</p>
+        <input v-model="key" type="text" />
+      </div>
+
+      <button class="btn btn-confim" @click="configValue">确认修改</button>
+    </div>
     <router-view />
   </div>
 </template>
@@ -11,12 +26,27 @@
 <script>
 const { ipcRenderer } = require("electron");
 export default {
+  data() {
+    return {
+      isOpen: false,
+      appid: "",
+      key: ""
+    };
+  },
   methods: {
     close() {
       ipcRenderer.send("close");
     },
     minimize() {
       ipcRenderer.send("minimize");
+    },
+    openConfig() {
+      this.isOpen = !this.isOpen;
+    },
+    configValue() {
+      this.$store.commit("changeAppid", this.appid);
+      this.$store.commit("changeKey", this.key);
+      this.isOpen = !this.isOpen;
     }
   }
 };
@@ -24,6 +54,7 @@ export default {
 
 <style lang="less" scoped>
 #app {
+  position: relative;
   overflow: hidden;
   width: 100vw;
   height: 100vh;
@@ -48,6 +79,55 @@ export default {
       font-size: 28px;
       color: #fff;
       font-weight: 200;
+    }
+  }
+  .config-wrapper {
+    background: rgba(0, 0, 0, 0.8);
+    color: #fff;
+    z-index: 678;
+    position: absolute;
+    width: 400px;
+    height: 250px;
+    border-radius: 12px;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    .input-item {
+      width: 80%;
+      margin: 0 auto;
+      margin-bottom: 18px;
+      display: flex;
+      flex-direction: row;
+      justify-content: space-around;
+      align-items: center;
+      p {
+        width: 60px;
+        font-size: 12px;
+      }
+      input {
+        width: 80%;
+        font-size: 12px;
+        outline: none;
+        border: none;
+        border-radius: 4px;
+        padding: 6px 4px;
+      }
+    }
+    .btn-confim {
+      background-color: #fff;
+      outline: none;
+      border: none;
+      margin-top: 30px;
+      width: 120px;
+      height: 30px;
+      text-align: center;
+      font-size: 12px;
+      border-radius: 4px;
+      cursor: pointer;
     }
   }
 }

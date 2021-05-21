@@ -34,7 +34,7 @@ const { remote } = require("electron").remote;
 const path = require("path");
 const fs = require("fs");
 const { shell } = require("electron").remote;
-
+import { mapState } from "vuex";
 export default {
   name: "home",
   data() {
@@ -196,7 +196,10 @@ export default {
      */
     translateFile(oldPath, dirPath, initSubFileName, suffixName) {
       throttle(() => {
-        translate(initSubFileName).then(res => {
+        let appid = this.appid;
+        let key = this.key;
+        translate(initSubFileName, appid, key).then(res => {
+          console.log({ appid, key });
           if (res) {
             // 如果有【】保留文件名,如果没有就加上【】
 
@@ -259,6 +262,9 @@ export default {
         this.mapTargetFiles(path, this.droppedFiles);
       }
     }
+  },
+  computed: {
+    ...mapState(["appid", "key"])
   }
 };
 </script>
