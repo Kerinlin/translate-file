@@ -30,11 +30,13 @@
 const { translate } = require("../common/translate.js");
 const { globalData } = require("../common/config.js");
 const { throttle } = require("../common/util.js");
-const { remote } = require("electron");
+// const { remote } = require('@electron/remote');
 const path = require("path");
 const fs = require("fs");
-const { shell } = require("electron");
 import jscookie from "js-cookie";
+// console.log(window.require('electron'));
+const { ipcRenderer } = window.require("electron");
+const { shell } = window.require("electron");
 export default {
   name: "home",
   data() {
@@ -145,11 +147,13 @@ export default {
       fs.readdir(dirPath, (err, files) => {
         if (err) {
           // throw err;
-          remote.dialog.showMessageBox({
-            type: "info",
-            title: "确认",
-            message: "请确认是否选择了目录"
-          });
+
+          ipcRenderer.send("confirmDir");
+          // remote.dialog.showMessageBox({
+          //   type: 'info',
+          //   title: '确认',
+          //   message: '请确认是否选择了目录',
+          // });
           this.loading = false;
           throw err;
         }
@@ -246,7 +250,8 @@ export default {
             // 重命名
             fs.rename(oldPath, newPath, err => {
               if (err) {
-                remote.dialog.showErrorBox("错误", "翻译失败，请关闭软件重试");
+                ipcRenderer.send("errorRename");
+                // remote.dialog.showErrorBox('错误', '翻译失败，请关闭软件重试');
                 this.loading = false;
                 throw err;
               }
@@ -256,34 +261,37 @@ export default {
           } else {
             // 翻译失败
             console.log("翻译接口服务出错");
-            remote.dialog.showMessageBox({
-              type: "error",
-              title: "错误",
-              message: "翻译接口服务出错"
-            });
+            ipcRenderer.send("transError");
+            // remote.dialog.showMessageBox({
+            //   type: 'error',
+            //   title: '错误',
+            //   message: '翻译接口服务出错',
+            // });
             this.loading = false;
           }
         });
       });
     },
 
-    async startTrans(path) {
-      console.log({ path });
+    startTrans(path) {
       this.loading = true;
 
       if (!path) {
-        remote.dialog.showMessageBox({
-          type: "info",
-          title: "确认",
-          message: "请确认是否选择了文件或者目录"
-        });
+        ipcRenderer.send("confirmDir");
+        // remote.dialog.showMessageBox({
+        //   type: 'info',
+        //   title: '确认',
+        //   message: '请确认是否选择了文件或者目录',
+        // });
         this.loading = false;
         return false;
       }
 
       // 当拖动的是文件夹或者单个文件，或者通过点击获取文件夹的时候
       if (!this.isDropMulti) {
-        const res = await fs.statSync(path);
+        console.log({ fs });
+        console.log({ path });
+        const res = fs.statSync(path);
 
         // 判断拖入的文件夹是否是目录
         const isDir = res.isDirectory();

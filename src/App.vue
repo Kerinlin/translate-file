@@ -33,9 +33,8 @@
 
 <script>
 const { globalData } = require("./common/config.js");
-const { ipcRenderer } = require("electron");
 import jscookie from "js-cookie";
-// const request = require("request-promise");
+const { ipcRenderer } = window.require("electron");
 export default {
   data() {
     return {
@@ -48,19 +47,6 @@ export default {
     };
   },
   methods: {
-    // async getUsed() {
-    //   try {
-    //     const url =
-    //       "http://api.fanyi.baidu.com/api/trans/product/desktopint?req=query_balance";
-    //     const options = {
-    //       uri: url
-    //     };
-    //     const res = await request(options);
-    //     console.log({ res });
-    //   } catch (error) {
-    //     console.log(error);
-    //   }
-    // },
     openNew() {
       ipcRenderer.send("openNew");
     },
@@ -94,7 +80,6 @@ export default {
   },
   mounted() {
     this.getConfig();
-    // this.getUsed()
   }
 };
 </script>

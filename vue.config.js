@@ -8,6 +8,12 @@ module.exports = {
         win: {
           icon: "public/fy.ico"
         },
+        mac: {
+          target: {
+            arch: "universal",
+            target: "dmg"
+          }
+        },
         publish: ["github"],
         nsis: {
           oneClick: false, // 是否一键安装，建议为 false，可以让用户点击下一步、下一步、下一步的形式安装程序，如果为true，当用户双击构建好的程序，自动安装程序并打开，即：一键安装
