@@ -34,7 +34,7 @@ const { remote } = require("electron").remote;
 const path = require("path");
 const fs = require("fs");
 const { shell } = require("electron").remote;
-import { mapState } from "vuex";
+import jscookie from "js-cookie";
 export default {
   name: "home",
   data() {
@@ -43,7 +43,9 @@ export default {
       loading: false,
       back: false,
       droppedFiles: [],
-      isDropMulti: false
+      isDropMulti: false,
+      appid: globalData.appid,
+      key: globalData.key
     };
   },
   methods: {
@@ -261,10 +263,15 @@ export default {
         // 翻译拖拽多选的文件
         this.mapTargetFiles(path, this.droppedFiles);
       }
+    },
+    getConfig() {
+      this.appid = jscookie.get("appid") || globalData.appid;
+      this.key = jscookie.get("keys") || globalData.key;
+      console.log(this.appid, this.key);
     }
   },
-  computed: {
-    ...mapState(["appid", "key"])
+  mounted() {
+    this.getConfig();
   }
 };
 </script>

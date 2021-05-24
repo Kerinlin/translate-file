@@ -9,12 +9,12 @@
     <div class="config-wrapper" v-if="isOpen">
       <div class="input-item">
         <p>APPID</p>
-        <input v-model="appid" type="text" />
+        <input v-model="appid" type="text" :placeholder="appidPlaceholder" />
       </div>
 
       <div class="input-item">
         <p>KEY</p>
-        <input v-model="key" type="text" />
+        <input v-model="key" type="text" :placeholder="keyPlaceholder" />
       </div>
 
       <button class="btn btn-confim" @click="configValue">确认修改</button>
@@ -24,13 +24,17 @@
 </template>
 
 <script>
+const { globalData } = require("./common/config.js");
 const { ipcRenderer } = require("electron");
+import jscookie from "js-cookie";
 export default {
   data() {
     return {
       isOpen: false,
       appid: "",
-      key: ""
+      key: "",
+      appidPlaceholder: "",
+      keyPlaceholder: globalData.key
     };
   },
   methods: {
@@ -44,10 +48,26 @@ export default {
       this.isOpen = !this.isOpen;
     },
     configValue() {
-      this.$store.commit("changeAppid", this.appid);
-      this.$store.commit("changeKey", this.key);
+      let appid, transkey;
+      if (!this.appid || !this.key) {
+        appid = globalData.appid;
+        transkey = globalData.key;
+      } else {
+        appid = this.appid;
+        transkey = this.key;
+      }
+      jscookie.set("appid", appid, { expires: 180 });
+      jscookie.set("keys", transkey, { expires: 180 });
       this.isOpen = !this.isOpen;
+      window.location.reload();
+    },
+    getConfig() {
+      this.appidPlaceholder = jscookie.get("appid") || globalData.appid;
+      this.keyPlaceholder = jscookie.get("keys") || globalData.key;
     }
+  },
+  mounted() {
+    this.getConfig();
   }
 };
 </script>
