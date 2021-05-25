@@ -30,10 +30,10 @@
 const { translate } = require("../common/translate.js");
 const { globalData } = require("../common/config.js");
 const { throttle } = require("../common/util.js");
-const { remote } = require("electron").remote;
+const { remote } = require("electron");
 const path = require("path");
 const fs = require("fs");
-const { shell } = require("electron").remote;
+const { shell } = require("electron");
 import jscookie from "js-cookie";
 export default {
   name: "home",
@@ -71,6 +71,35 @@ export default {
         this.isDropMulti = true;
       } else {
         this.path = this.droppedFiles[0].path;
+      }
+      console.log(this.path.length);
+
+      // 父文件夹
+      let dirPath = path.dirname(this.path);
+
+      let fileName = path.basename(this.path);
+
+      console.log({ fileName });
+
+      // 父父文件夹路径
+      let grandFatherPath = path.dirname(dirPath);
+
+      let parentName = path.basename(dirPath);
+
+      if (parentName.length > 30) {
+        let newName = parentName.substring(0, 30);
+        let newFullName = path.resolve(grandFatherPath, newName);
+        console.log({ newFullName });
+        fs.rename(dirPath, newFullName, err => {
+          if (err) {
+            remote.dialog.showErrorBox(
+              "错误",
+              "自动修改文件夹失败，请手动更改文件夹"
+            );
+            throw err;
+          }
+          this.path = path.resolve(newFullName, fileName);
+        });
       }
     },
     getFile(e) {
@@ -239,6 +268,7 @@ export default {
     },
 
     async startTrans(path) {
+      console.log({ path });
       this.loading = true;
 
       if (!path) {
