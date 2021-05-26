@@ -17,7 +17,15 @@
         <input v-model="key" type="text" :placeholder="keyPlaceholder" />
       </div>
 
-      <button class="btn btn-confim" @click="configValue">确认修改</button>
+      <!-- <div class="input-item">
+        <p>Used</p>
+        <input v-model="symbolNum" readonly type="text" placeholder="登录后即可查看已使用字符" />
+      </div> -->
+
+      <div class="btn-wrappper">
+        <button class="btn btn-confim" @click="configValue">确认修改</button>
+        <button class="btn btn-confim ml" @click="openNew">查看剩余字符</button>
+      </div>
     </div>
     <router-view />
   </div>
@@ -27,6 +35,7 @@
 const { globalData } = require("./common/config.js");
 const { ipcRenderer } = require("electron");
 import jscookie from "js-cookie";
+// const request = require("request-promise");
 export default {
   data() {
     return {
@@ -34,10 +43,27 @@ export default {
       appid: "",
       key: "",
       appidPlaceholder: "",
-      keyPlaceholder: globalData.key
+      keyPlaceholder: globalData.key,
+      symbolNum: ""
     };
   },
   methods: {
+    // async getUsed() {
+    //   try {
+    //     const url =
+    //       "http://api.fanyi.baidu.com/api/trans/product/desktopint?req=query_balance";
+    //     const options = {
+    //       uri: url
+    //     };
+    //     const res = await request(options);
+    //     console.log({ res });
+    //   } catch (error) {
+    //     console.log(error);
+    //   }
+    // },
+    openNew() {
+      ipcRenderer.send("openNew");
+    },
     close() {
       ipcRenderer.send("close");
     },
@@ -68,6 +94,7 @@ export default {
   },
   mounted() {
     this.getConfig();
+    // this.getUsed()
   }
 };
 </script>
@@ -141,13 +168,16 @@ export default {
       background-color: #fff;
       outline: none;
       border: none;
-      margin-top: 30px;
+      margin-top: 20px;
       width: 120px;
       height: 30px;
       text-align: center;
       font-size: 12px;
       border-radius: 4px;
       cursor: pointer;
+    }
+    .ml {
+      margin-left: 40px;
     }
   }
 }

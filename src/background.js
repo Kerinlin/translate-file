@@ -12,12 +12,11 @@ const { ipcMain } = require("electron");
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let win;
-
 // Scheme must be registered before the app is ready
 protocol.registerSchemesAsPrivileged([
   { scheme: "app", privileges: { secure: true, standard: true } }
 ]);
-
+// const request = require("request-promise");
 function createWindow() {
   // Create the browser window.
   win = new BrowserWindow({
@@ -48,6 +47,48 @@ function createWindow() {
   });
 }
 
+function createWindow2() {
+  // Create the browser window.
+  let win1 = new BrowserWindow({
+    width: 568,
+    height: 379,
+    autoHideMenuBar: true
+    // webPreferences: {
+    //   nodeIntegration: true
+    // }
+  });
+
+  win1.loadURL("http://api.fanyi.baidu.com/api/trans/product/desktop");
+  // if (process.env.WEBPACK_DEV_SERVER_URL) {
+  //   // Load the url of the dev server if in development mode
+  //   win.loadURL(process.env.WEBPACK_DEV_SERVER_URL);
+  //   if (!process.env.IS_TEST) win.webContents.openDevTools();
+  // } else {
+  //   // createProtocol("app");
+  //   // Load the index.html when not in development
+  //   win.loadURL("http://api.fanyi.baidu.com/api/trans/product/index");
+  //   // autoUpdater.checkForUpdates();
+  // }
+
+  win1.on("closed", () => {
+    win1 = null;
+  });
+}
+
+// async function getUsed() {
+//   try {
+//     const url =
+//       "http://api.fanyi.baidu.com/api/trans/product/desktopint?req=query_balance";
+//     const options = {
+//       uri: url
+//     };
+//     const res = await request(options);
+//     console.log({ res });
+//   } catch (error) {
+//     console.log(error);
+//   }
+// }
+
 // Quit when all windows are closed.
 app.on("window-all-closed", () => {
   // On macOS it is common for applications and their menu bar
@@ -69,6 +110,11 @@ ipcMain.on("close", () => {
   win.close();
   app.quit();
 });
+
+ipcMain.on("openNew", () => {
+  createWindow2();
+});
+
 ipcMain.on("minimize", () => {
   win.minimize();
 });
