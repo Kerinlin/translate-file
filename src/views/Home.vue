@@ -95,10 +95,11 @@ export default {
         console.log({ newFullName });
         fs.rename(dirPath, newFullName, err => {
           if (err) {
-            remote.dialog.showErrorBox(
-              "错误",
-              "自动修改文件夹失败，请手动更改文件夹"
-            );
+            // remote.dialog.showErrorBox(
+            //   "错误",
+            //   "自动修改文件夹失败，请手动更改文件夹"
+            // );
+            this.$notify.error(`自动修改文件夹失败，请手动更改文件夹`);
             throw err;
           }
           this.path = path.resolve(newFullName, fileName);
@@ -263,7 +264,10 @@ export default {
           } else {
             // 翻译失败
             console.log("翻译接口服务出错");
-            ipcRenderer.send("transError");
+            this.$notify.error(
+              `翻译服务出错了,看一下是不是欠费了,请务必联系你的男朋友!!!`
+            );
+            // ipcRenderer.send("transError");
             // remote.dialog.showMessageBox({
             //   type: 'error',
             //   title: '错误',
