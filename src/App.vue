@@ -156,9 +156,6 @@ export default {
       this.isOpen = true;
       this.isAdd = false;
     },
-    close() {
-      ipcRenderer.send("openNew");
-    },
     openNew() {
       ipcRenderer.send("openNew");
     },
@@ -204,6 +201,9 @@ export default {
     },
     closeOpen() {
       this.isOpen = false;
+    },
+    close() {
+      ipcRenderer.send("close");
     },
     minimize() {
       ipcRenderer.send("minimize");
