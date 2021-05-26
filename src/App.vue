@@ -244,8 +244,21 @@ export default {
         const [item] = this.accountList.filter(
           item => item.appid === this.appid && item.key === this.key
         );
-        console.log("当前账户", item.name);
-        this.accountName = item.name;
+        if (!item) {
+          jscookie.remove("appid");
+          jscookie.remove("keys");
+          jscookie.set("appid", globalData.appid, { expires: 360 });
+          jscookie.set("keys", globalData.key, { expires: 360 });
+          this.appid = jscookie.get("appid");
+          this.key = jscookie.get("keys");
+          const [item] = this.accountList.filter(
+            item => item.appid === this.appid && item.key === this.key
+          );
+          this.accountName = item.name;
+        } else {
+          this.accountName = item.name;
+        }
+        console.log("当前账户", this.accountName);
       }
     }
   },
