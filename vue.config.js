@@ -9,9 +9,27 @@ module.exports = {
           icon: "public/fy.ico"
         },
         mac: {
-          target: {
-            arch: "universal",
-            target: "dmg"
+          target: "dmg",
+          icon: "public/fy.png"
+        },
+        dmg: {
+          title: "翻译器",
+          icon: "public/fy.png",
+          contents: [
+            {
+              x: 110,
+              y: 150
+            },
+            {
+              x: 240,
+              y: 150,
+              type: "link",
+              path: "/Applications"
+            }
+          ],
+          window: {
+            x: 400,
+            y: 400
           }
         },
         publish: ["github"],
@@ -27,7 +45,7 @@ module.exports = {
       "/api/*": {
         changeOrigin: true, // 是否跨域
         secure: false,
-        target: "https://fanyi-api.baidu.com"
+        target: "http://fanyi-api.baidu.com"
       }
     },
     clientLogLevel: "none"

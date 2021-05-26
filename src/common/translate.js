@@ -6,7 +6,7 @@ axios.defaults.withCredentials = true;
 axios.defaults.crossDomain = true;
 axios.defaults.headers.post["Content-Type"] =
   "application/x-www-form-urlencoded";
-
+axios.defaults.baseURL = "http://fanyi-api.baidu.com";
 async function translate(msg = "", appid, key) {
   try {
     const q = msg;
