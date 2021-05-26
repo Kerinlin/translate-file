@@ -2,6 +2,8 @@
 const electron = require("electron");
 import { app, protocol, BrowserWindow, dialog } from "electron";
 import { autoUpdater } from "electron-updater";
+const path = require("path");
+// console.log(path.join(app.getAppPath()));
 import {
     createProtocol
     // installVueDevtools
@@ -29,7 +31,8 @@ function createWindow() {
         resizable: false,
         titleBarStyle: "hidden",
         webPreferences: {
-            nodeIntegration: true
+            nodeIntegration: true,
+            preload: path.resolve(__dirname, "preload.js")
         }
     });
 

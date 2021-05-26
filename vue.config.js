@@ -21,5 +21,15 @@ module.exports = {
         }
       }
     }
+  },
+  devServer: {
+    proxy: {
+      "/api/*": {
+        changeOrigin: true, // 是否跨域
+        secure: false,
+        target: "https://fanyi-api.baidu.com"
+      }
+    },
+    clientLogLevel: "none"
   }
 };

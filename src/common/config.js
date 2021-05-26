@@ -1,7 +1,7 @@
 const globalData = {
   delay: 200,
-  appid: "20210503000812126",
-  key: "42MGCXLR1Z59THGw8c7T",
+  appid: "20190618000308470",
+  key: "3Naugqz0ydUXKUh7xXRw",
   to: "zh"
 };
 

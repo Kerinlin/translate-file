@@ -31,10 +31,11 @@ const { translate } = require("../common/translate.js");
 const { globalData } = require("../common/config.js");
 const { throttle } = require("../common/util.js");
 // const { remote } = require('@electron/remote');
-const path = require("path");
-const fs = require("fs");
+const path = window.path;
+const fs = window.fs;
 import jscookie from "js-cookie";
 // console.log(window.require('electron'));
+// console.log(window);
 const { ipcRenderer } = window.require("electron");
 const { shell } = window.require("electron");
 export default {
@@ -234,8 +235,9 @@ export default {
         let appid = this.appid;
         let key = this.key;
         translate(initSubFileName, appid, key).then(res => {
-          console.log({ appid, key });
+          console.log({ appid, key, res });
           if (res) {
+            console.log({ res });
             // 如果有【】保留文件名,如果没有就加上【】
 
             const target = this.checkName(res[0].dst);
