@@ -20,6 +20,22 @@ const throttle = (function(delay = 1500) {
   };
 })(globalData.delay);
 
+const remove = (arr, func) =>
+  Array.isArray(arr)
+    ? arr.filter(func).reduce((acc, val) => {
+        arr.splice(arr.indexOf(val), 1);
+        return acc.concat(val);
+      }, [])
+    : [];
+
+const uniqueElementsByRight = (arr, fn) =>
+  arr.reduceRight((acc, v) => {
+    if (!acc.some(x => fn(v, x))) acc.push(v);
+    return acc;
+  }, []);
+
 module.exports = {
-  throttle
+  throttle,
+  remove,
+  uniqueElementsByRight
 };
