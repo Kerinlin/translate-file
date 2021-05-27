@@ -28,8 +28,8 @@ const remove = (arr, func) =>
       }, [])
     : [];
 
-const uniqueElementsByRight = (arr, fn) =>
-  arr.reduceRight((acc, v) => {
+const uniqueElementsBy = (arr, fn) =>
+  arr.reduce((acc, v) => {
     if (!acc.some(x => fn(v, x))) acc.push(v);
     return acc;
   }, []);
@@ -37,5 +37,5 @@ const uniqueElementsByRight = (arr, fn) =>
 module.exports = {
   throttle,
   remove,
-  uniqueElementsByRight
+  uniqueElementsBy
 };

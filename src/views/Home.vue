@@ -311,11 +311,13 @@ export default {
     getConfig() {
       this.appid = jscookie.get("appid") || globalData.appid;
       this.key = jscookie.get("keys") || globalData.key;
-      console.log(this.appid, this.key);
+      console.log("home get cookie", this.appid, this.key);
     }
   },
   mounted() {
+    // setTimeout(() => {
     this.getConfig();
+    // }, 1000);
   }
 };
 </script>
