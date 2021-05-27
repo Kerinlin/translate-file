@@ -112,9 +112,10 @@ app.on("activate", () => {
   }
 });
 
-ipcMain.on("close", () => {
-  win.close();
-  app.quit();
+ipcMain.on("closewindow", () => {
+  console.log("recieive close");
+  // win.close();
+  app.exit();
 });
 
 ipcMain.on("openNew", () => {

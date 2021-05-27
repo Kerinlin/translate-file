@@ -6,7 +6,7 @@ axios.defaults.withCredentials = true;
 axios.defaults.crossDomain = true;
 axios.defaults.headers.post["Content-Type"] =
   "application/x-www-form-urlencoded";
-axios.defaults.baseURL = "http://fanyi-api.baidu.com";
+axios.defaults.baseURL = "http://api.fanyi.baidu.com";
 async function translate(msg = "", appid, key) {
   try {
     const q = msg;
@@ -19,7 +19,7 @@ async function translate(msg = "", appid, key) {
     const url = `/api/trans/vip/translate?${params}`;
     const res = await axios.get(url);
     // console.log({ res });
-    return res.data.trans_result;
+    return res.data;
   } catch (error) {
     console.log({ error });
   }
