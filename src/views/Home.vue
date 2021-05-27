@@ -143,6 +143,7 @@ export default {
 
     // 翻译目录下的文件
     transDirFiles(dirPath) {
+      console.log({ dirPath });
       let fileCount;
 
       // 读取目录中的所有文件/目录
@@ -161,8 +162,9 @@ export default {
         }
 
         fileCount = files.length;
-
+        console.log({ fileCount });
         files.forEach(fileItem => {
+          console.log({ fileItem });
           // 文件夹内文件的绝对路劲
           let fullPath = path.resolve(dirPath, fileItem);
 
@@ -188,7 +190,9 @@ export default {
                 suffixName
               );
             } else if (stat.isDirectory()) {
-              this.startTrans(dirPath);
+              console.log({ fullPath });
+              console.log("检测到文件夹内含有文件夹", { dirPath });
+              this.transDirFiles(fullPath);
             }
           });
         });
@@ -235,47 +239,45 @@ export default {
       throttle(() => {
         let appid = this.appid;
         let key = this.key;
-        translate(initSubFileName, appid, key).then(res => {
-          console.log({ appid, key, res });
-          if (res) {
-            console.log({ res });
-            // 如果有【】保留文件名,如果没有就加上【】
+        translate(initSubFileName, appid, key)
+          .then(res => {
+            console.log({ appid, key, res });
+            if (res) {
+              console.log({ res });
+              // 如果有【】保留文件名,如果没有就加上【】
 
-            const target = this.checkName(res[0].dst, initSubFileName);
-            // console.log({initSubFileName,target});
+              const target = this.checkName(res[0].dst);
+              // console.log({initSubFileName,target});
 
-            // 拼接带后缀的文件名
-            const fullSuffixName = `${target}${suffixName}`;
+              // 拼接带后缀的文件名
+              const fullSuffixName = `${target}${suffixName}`;
 
-            // 翻译后的文件路径
-            const newPath = path.resolve(dirPath, fullSuffixName);
+              // 翻译后的文件路径
+              const newPath = path.resolve(dirPath, fullSuffixName);
 
-            // 重命名
-            fs.rename(oldPath, newPath, err => {
-              if (err) {
-                ipcRenderer.send("errorRename");
-                // remote.dialog.showErrorBox('错误', '翻译失败，请关闭软件重试');
-                this.loading = false;
-                throw err;
-              }
-              console.log(`${initSubFileName} 已翻译成 ${fullSuffixName}`);
-              this.path = `${initSubFileName} 已翻译成 ${fullSuffixName}`;
-            });
-          } else {
+              // 重命名
+              fs.rename(oldPath, newPath, err => {
+                if (err) {
+                  ipcRenderer.send("errorRename");
+                  // remote.dialog.showErrorBox('错误', '翻译失败，请关闭软件重试');
+                  this.loading = false;
+                  throw err;
+                }
+                console.log(`${initSubFileName} 已翻译成 ${fullSuffixName}`);
+                this.path = `${initSubFileName} 已翻译成 ${fullSuffixName}`;
+              });
+            } else {
+              this.loading = false;
+            }
+          })
+          .catch(error => {
+            console.log(error);
             // 翻译失败
             console.log("翻译接口服务出错");
             this.$notify.error(
               `翻译服务出错了,看一下是不是欠费了,请务必联系你的男朋友!!!`
             );
-            // ipcRenderer.send("transError");
-            // remote.dialog.showMessageBox({
-            //   type: 'error',
-            //   title: '错误',
-            //   message: '翻译接口服务出错',
-            // });
-            this.loading = false;
-          }
-        });
+          });
       });
     },
 
