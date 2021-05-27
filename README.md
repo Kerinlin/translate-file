@@ -1,6 +1,6 @@
 # Introduce
 
-![](show.mov)
+![show](./src/assets/show.gif)
 
 1. Support translate a single file;
 2. Support translate the files in a directory;
