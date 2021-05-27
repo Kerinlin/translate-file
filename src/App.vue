@@ -88,7 +88,7 @@
 
 <script>
 const { globalData, defaultAccount } = require("./common/config.js");
-import jscookie from "js-cookie";
+// import jscookie from 'js-cookie';
 const { ipcRenderer } = window.require("electron");
 const { remove, uniqueElementsBy } = require("./common/util.js");
 export default {
@@ -119,9 +119,9 @@ export default {
       this.appid = item.appid;
       this.key = item.key;
 
-      jscookie.set("accountName", this.accountName, { expires: 180 });
-      jscookie.set("appid", this.appid, { expires: 180 });
-      jscookie.set("keys", this.key, { expires: 180 });
+      localStorage.setItem("accountName", this.accountName);
+      localStorage.setItem("appid", this.appid);
+      localStorage.setItem("keys", this.key);
 
       console.log(item.name, item.appid, item.key);
       // this.$store.commit('changeAppid', this.appid);
@@ -129,7 +129,7 @@ export default {
 
       // this.$notify.success(`知道你切换账户了,即将刷新！！！⚡️`);
       // setTimeout(() => {
-      window.location.reload();
+      // window.location.reload();
       // }, 2000);
     },
     addAccount() {
@@ -165,10 +165,10 @@ export default {
 
     // 删除账户
     remove() {
-      if (this.appid === globalData.appid && this.key === globalData.key) {
-        this.$notify.warning(`这是你自己的账户，不允许删除`);
-        return false;
-      }
+      // if (this.appid === globalData.appid && this.key === globalData.key) {
+      //   this.$notify.warning(`这是你自己的账户，不允许删除`);
+      //   return false;
+      // }
 
       if (this.accountList.length <= 1) {
         this.$notify.warning(
@@ -192,9 +192,9 @@ export default {
       this.key = this.accountList[0].key;
       this.accountName = this.accountList[0].name;
 
-      jscookie.set("appid", this.accountList[0].appid, { expires: 180 });
-      jscookie.set("keys", this.accountList[0].key, { expires: 180 });
-      jscookie.set("accountName", this.accountList[0].name, { expires: 180 });
+      localStorage.setItem("appid", this.accountList[0].appid);
+      localStorage.setItem("keys", this.accountList[0].key);
+      localStorage.setItem("accountName", this.accountList[0].name);
       // this.$store.commit('changeAppid', this.accountList[0].appid);
       // this.$store.commit('changeKey', this.accountList[0].key);
 
@@ -205,7 +205,7 @@ export default {
       }
       // setTimeout(() => {
       //   this.$notify.info(`更新当前账户，即将刷新！！！🌈`);
-      window.location.reload();
+      // window.location.reload();
       // }, 2000);
     },
 
@@ -216,7 +216,8 @@ export default {
       this.isOpen = false;
     },
     close() {
-      ipcRenderer.send("close");
+      console.log("click close");
+      ipcRenderer.send("closewindow");
     },
     minimize() {
       ipcRenderer.send("minimize");
@@ -241,9 +242,9 @@ export default {
       this.getConfig();
     },
     getConfig() {
-      this.appid = jscookie.get("appid") || globalData.appid;
-      this.key = jscookie.get("keys") || globalData.key;
-      this.accountName = jscookie.get("accountName") || globalData.name;
+      this.appid = localStorage.getItem("appid") || globalData.appid;
+      this.key = localStorage.getItem("keys") || globalData.key;
+      this.accountName = localStorage.getItem("accountName") || globalData.name;
 
       console.log("getconfig", this.appid, this.key, this.accountName);
 
@@ -255,11 +256,10 @@ export default {
 
       if (!item) {
         // console.log('a');
-        jscookie.remove("appid");
-        jscookie.remove("keys");
-        jscookie.set("appid", globalData.appid, { expires: 180 });
-        jscookie.set("keys", globalData.key, { expires: 180 });
-        jscookie.set("accountName", globalData.name, { expires: 180 });
+        localStorage.clear();
+        localStorage.setItem("appid", globalData.appid);
+        localStorage.setItem("keys", globalData.key);
+        localStorage.setItem("accountName", globalData.name);
         this.appid = globalData.appid;
         this.key = globalData.key;
         this.accountName = globalData.name;

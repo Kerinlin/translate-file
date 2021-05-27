@@ -33,7 +33,7 @@ const { throttle } = require("../common/util.js");
 // const { remote } = require('@electron/remote');
 const path = window.path;
 const fs = window.fs;
-import jscookie from "js-cookie";
+// import jscookie from "js-cookie";
 // console.log(window.require('electron'));
 // console.log(window);
 const { ipcRenderer } = window.require("electron");
@@ -46,9 +46,7 @@ export default {
       loading: false,
       back: false,
       droppedFiles: [],
-      isDropMulti: false,
-      appid: globalData.appid,
-      key: globalData.key
+      isDropMulti: false
     };
   },
   methods: {
@@ -237,16 +235,17 @@ export default {
      */
     translateFile(oldPath, dirPath, initSubFileName, suffixName) {
       throttle(() => {
-        let appid = this.appid;
-        let key = this.key;
+        let appid = localStorage.getItem("appid") || globalData.appid;
+        let key = localStorage.getItem("keys") || globalData.key;
         translate(initSubFileName, appid, key)
           .then(res => {
             console.log({ appid, key, res });
-            if (res) {
+            let result = res.trans_result;
+            if (result) {
               console.log({ res });
               // 如果有【】保留文件名,如果没有就加上【】
 
-              const target = this.checkName(res[0].dst);
+              const target = this.checkName(result[0].dst);
               // console.log({initSubFileName,target});
 
               // 拼接带后缀的文件名
@@ -267,6 +266,11 @@ export default {
                 this.path = `${initSubFileName} 已翻译成 ${fullSuffixName}`;
               });
             } else {
+              if (res.error_code === "54004") {
+                this.$notify.error(
+                  `没钱了!!!没钱了!!!没钱了!!!重要的事情说三遍!!!`
+                );
+              }
               this.loading = false;
             }
           })
@@ -309,17 +313,7 @@ export default {
         // 翻译拖拽多选的文件
         this.mapTargetFiles(path, this.droppedFiles);
       }
-    },
-    getConfig() {
-      this.appid = jscookie.get("appid") || globalData.appid;
-      this.key = jscookie.get("keys") || globalData.key;
-      console.log("home get cookie", this.appid, this.key);
     }
-  },
-  mounted() {
-    // setTimeout(() => {
-    this.getConfig();
-    // }, 1000);
   }
 };
 </script>
