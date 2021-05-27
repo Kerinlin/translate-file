@@ -1,4 +1,7 @@
 # Introduce
+
+![](show.mov)
+
 1. Support translate a single file;
 2. Support translate the files in a directory;
 3. Support translate multiple files;
