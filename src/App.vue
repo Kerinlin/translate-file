@@ -165,6 +165,10 @@ export default {
 
     // 删除账户
     remove() {
+      if (this.appid === globalData.appid && this.key === globalData.key) {
+        this.$notify.warning(`这是你自己的默认主要账户，不允许删除`);
+        return false;
+      }
       if (this.accountList.length <= 1) {
         this.$notify.warning(
           `这是最后一个账户啦，删除后，会在5秒后自动刷新页面来重置账户👻`
@@ -175,10 +179,6 @@ export default {
         }, 5000);
       }
 
-      if (this.appid === globalData.appid && this.key === globalData.key) {
-        this.$notify.warning(`这是你自己的账户，不允许删除`);
-        return false;
-      }
       // 移除当前账户
       this.accountList = remove(
         this.accountList,
