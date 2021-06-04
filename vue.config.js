@@ -14,23 +14,7 @@ module.exports = {
         },
         dmg: {
           title: "翻译器",
-          icon: "public/fy.png",
-          contents: [
-            {
-              x: 110,
-              y: 150
-            },
-            {
-              x: 240,
-              y: 150,
-              type: "link",
-              path: "/Applications"
-            }
-          ],
-          window: {
-            x: 400,
-            y: 400
-          }
+          icon: "public/fy.png"
         },
         publish: ["github"],
         nsis: {
