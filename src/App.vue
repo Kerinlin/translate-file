@@ -24,6 +24,20 @@
             >
           </select>
         </div>
+
+        <div class="input-item">
+          <p>选择类型</p>
+          <!-- <input v-model="appid" type="text" :placeholder="appidPlaceholder" /> -->
+          <select v-model="transType" @change="getSelectType">
+            <option
+              v-for="(item, index) in typeList"
+              :key="index"
+              :value="item.type"
+              >{{ item.name }}</option
+            >
+          </select>
+        </div>
+
         <div class="input-item">
           <p>APPID</p>
           <input v-model="appid" type="text" readonly class="showInput" />
@@ -106,7 +120,18 @@ export default {
       accountList: [],
       newName: "",
       newAppid: "",
-      newKey: ""
+      newKey: "",
+      transType: "sound",
+      typeList: [
+        {
+          name: "音效",
+          type: "sound"
+        },
+        {
+          name: "音乐",
+          type: "music"
+        }
+      ]
     };
   },
   methods: {
@@ -131,6 +156,11 @@ export default {
       // setTimeout(() => {
       // window.location.reload();
       // }, 2000);
+    },
+    getSelectType(e) {
+      console.log(e.target.value);
+      this.transType = e.target.value;
+      localStorage.setItem("type", this.transType);
     },
     addAccount() {
       this.isAdd = true;
@@ -245,8 +275,14 @@ export default {
       this.appid = localStorage.getItem("appid") || globalData.appid;
       this.key = localStorage.getItem("keys") || globalData.key;
       this.accountName = localStorage.getItem("accountName") || globalData.name;
-
-      console.log("getconfig", this.appid, this.key, this.accountName);
+      this.transType = localStorage.getItem("type") || globalData.type;
+      console.log(
+        "getconfig",
+        this.appid,
+        this.key,
+        this.accountName,
+        this.transType
+      );
 
       // 检查从coojie读取的账户在不在账户列表里面
       const [item] = this.accountList.filter(
@@ -314,7 +350,7 @@ export default {
     color: #fff;
     z-index: 678;
     width: 400px;
-    height: 250px;
+    height: 280px;
     border-radius: 12px;
     .config-content {
       width: 100%;
@@ -397,7 +433,7 @@ export default {
         background-color: #fff;
         outline: none;
         border: none;
-        margin-top: 20px;
+        margin-top: 15px;
         // width: 120px;
         height: 30px;
         line-height: 30px;

@@ -54,6 +54,8 @@ export default {
       // 将伪数组转换成数组
       this.droppedFiles = [...e.dataTransfer.files];
 
+      console.log("drop", this.droppedFiles);
+
       // [].forEach.call(
       //   e.dataTransfer.files,
       //   file => {
@@ -71,16 +73,17 @@ export default {
         // 标记是否是多选
         this.isDropMulti = true;
       } else {
+        this.isDropMulti = false;
         this.path = this.droppedFiles[0].path;
       }
-      console.log(this.path.length);
+      // console.log(this.path.length);
 
       // 父文件夹
       let dirPath = path.dirname(this.path);
 
       let fileName = path.basename(this.path);
 
-      console.log({ fileName });
+      // console.log({ fileName });
 
       // 父父文件夹路径
       let grandFatherPath = path.dirname(dirPath);
@@ -122,8 +125,8 @@ export default {
     // 多个拖拽文件的翻译
     mapTargetFiles(dir, fileArray) {
       let fileCount = fileArray.length;
-      console.log(fileArray);
-      console.log(fileCount);
+      // console.log(fileArray);
+      // console.log(fileCount);
       fileArray.forEach(file => {
         // console.log(file);
         let filePath = file.path;
@@ -160,9 +163,9 @@ export default {
         }
 
         fileCount = files.length;
-        console.log({ fileCount });
+        // console.log({ fileCount });
         files.forEach(fileItem => {
-          console.log({ fileItem });
+          // console.log({ fileItem });
           // 文件夹内文件的绝对路劲
           let fullPath = path.resolve(dirPath, fileItem);
 
@@ -188,8 +191,8 @@ export default {
                 suffixName
               );
             } else if (stat.isDirectory()) {
-              console.log({ fullPath });
-              console.log("检测到文件夹内含有文件夹", { dirPath });
+              // console.log({ fullPath });
+              // console.log('检测到文件夹内含有文件夹', { dirPath });
               this.transDirFiles(fullPath);
             }
           });
@@ -208,6 +211,16 @@ export default {
       const reg = /[`~_!@#$^&*%()=|{}':;',.<>\\/?~！@#￥……&*（）——|{}'；：""'。，、？\s]/g;
       const newFile = fileName.replace(reg, " ");
       return newFile;
+    },
+
+    // 检测汉字
+    getChinese(strValue) {
+      if (strValue) {
+        const reg = /[\u4e00-\u9fa5]/g;
+        return strValue.match(reg).join("");
+      } else {
+        return "";
+      }
     },
 
     transSingle(filePath) {
@@ -239,32 +252,65 @@ export default {
         let key = localStorage.getItem("keys") || globalData.key;
         translate(initSubFileName, appid, key)
           .then(res => {
-            console.log({ appid, key, res });
+            // console.log({ appid, key, res });
             let result = res.trans_result;
             if (result) {
-              console.log({ res });
+              // console.log({ res });
               // 如果有【】保留文件名,如果没有就加上【】
+              let type = localStorage.getItem("type");
 
-              const target = this.checkName(result[0].dst);
-              // console.log({initSubFileName,target});
+              // 音效控制逻辑
+              if (type === "sound") {
+                const target = this.checkName(result[0].dst);
+                // console.log({initSubFileName,target});
 
-              // 拼接带后缀的文件名
-              const fullSuffixName = `${target}${suffixName}`;
+                // 拼接带后缀的文件名
+                const fullSuffixName = `${target}${suffixName}`;
 
-              // 翻译后的文件路径
-              const newPath = path.resolve(dirPath, fullSuffixName);
+                // 翻译后的文件路径
+                const newPath = path.resolve(dirPath, fullSuffixName);
 
-              // 重命名
-              fs.rename(oldPath, newPath, err => {
-                if (err) {
-                  ipcRenderer.send("errorRename");
-                  // remote.dialog.showErrorBox('错误', '翻译失败，请关闭软件重试');
-                  this.loading = false;
-                  throw err;
+                // 重命名
+                fs.rename(oldPath, newPath, err => {
+                  if (err) {
+                    ipcRenderer.send("errorRename");
+                    // remote.dialog.showErrorBox('错误', '翻译失败，请关闭软件重试');
+                    this.loading = false;
+                    throw err;
+                  }
+                  console.log(`${initSubFileName} 已翻译成 ${fullSuffixName}`);
+                  this.path = `${initSubFileName} 已翻译成 ${fullSuffixName}`;
+                });
+              } else {
+                const res = result[0].dst;
+                console.log({ res });
+                const searchedChinese = this.getChinese(res);
+                // console.log({ searchedChinese });
+                let newFile = `${initSubFileName}-${res}${suffixName}`;
+                console.log({ newFile });
+
+                // 检测是否含有关键字
+                const isSadKey = searchedChinese.search(/(悲|哭|泪|苦|难)/g);
+                const isHappyKey = searchedChinese.search(/(笑|乐|欢)/g);
+                // console.log({ isSadKey });
+                console.log({ oldPath, dirPath });
+
+                // 有关键字
+                if (isSadKey != -1) {
+                  let sadDir = localStorage.getItem("sadPath");
+                  let newSadPath = path.join(sadDir, newFile);
+                  console.log({ newSadPath });
+                  fs.renameSync(oldPath, newSadPath);
+                } else if (isHappyKey != -1) {
+                  let happyDir = localStorage.getItem("happyPath");
+                  let newHappyPath = path.join(happyDir, newFile);
+                  console.log({ newHappyPath });
+                  fs.renameSync(oldPath, newHappyPath);
+                } else {
+                  let newPath = path.join(dirPath, newFile);
+                  fs.renameSync(oldPath, newPath);
                 }
-                console.log(`${initSubFileName} 已翻译成 ${fullSuffixName}`);
-                this.path = `${initSubFileName} 已翻译成 ${fullSuffixName}`;
-              });
+              }
             } else {
               if (res.error_code === "54004") {
                 this.$notify.error(
@@ -285,33 +331,49 @@ export default {
       });
     },
 
-    startTrans(path) {
+    startTrans(filePath) {
+      console.log({ filePath });
       this.loading = true;
+      try {
+        if (!filePath) {
+          ipcRenderer.send("confirmDir");
+          this.loading = false;
+          return false;
+        }
 
-      if (!path) {
-        ipcRenderer.send("confirmDir");
-        // remote.dialog.showMessageBox({
-        //   type: 'info',
-        //   title: '确认',
-        //   message: '请确认是否选择了文件或者目录',
-        // });
-        this.loading = false;
-        return false;
-      }
+        // 分类音乐需要区分文件夹
+        let type = localStorage.getItem("type");
+        if (type === "music") {
+          localStorage.removeItem("sadPath");
+          localStorage.removeItem("happyPath");
+          const targetDirPath1 = path.join(filePath, "悲伤式抒情");
+          const targetDirPath2 = path.join(filePath, "美好式抒情");
 
-      // 当拖动的是文件夹或者单个文件，或者通过点击获取文件夹的时候
-      if (!this.isDropMulti) {
-        console.log({ fs });
-        console.log({ path });
-        const res = fs.statSync(path);
+          localStorage.setItem("sadPath", targetDirPath1);
+          localStorage.setItem("happyPath", targetDirPath2);
 
-        // 判断拖入的文件夹是否是目录
-        const isDir = res.isDirectory();
+          fs.mkdirSync(targetDirPath1, { recursive: true });
+          fs.mkdirSync(targetDirPath2, { recursive: true });
+        }
 
-        isDir ? this.transDirFiles(path) : this.transSingle(path);
-      } else {
-        // 翻译拖拽多选的文件
-        this.mapTargetFiles(path, this.droppedFiles);
+        // 当拖动的是文件夹或者单个文件，或者通过点击获取文件夹的时候
+        if (!this.isDropMulti) {
+          // console.log({ fs });
+          // console.log({ filePath });
+          const res = fs.statSync(filePath);
+
+          // 判断拖入的文件夹是否是目录
+          const isDir = res.isDirectory();
+
+          console.log({ isDir });
+
+          isDir ? this.transDirFiles(filePath) : this.transSingle(filePath);
+        } else {
+          // 翻译拖拽多选的文件
+          this.mapTargetFiles(filePath, this.droppedFiles);
+        }
+      } catch (error) {
+        console.log({ error });
       }
     }
   }

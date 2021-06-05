@@ -1,5 +1,4 @@
 const md5 = require("md5");
-// var rp = require("request-promise");
 const axios = require("axios");
 const { globalData } = require("./config.js");
 axios.defaults.withCredentials = true;
@@ -15,7 +14,7 @@ async function translate(msg = "", appid, key) {
     const sign = md5(str);
     console.log({ str });
     const query = encodeURI(q);
-    const params = `q=${query}&from=en&to=${globalData.to}&appid=${appid}&salt=${salt}&sign=${sign}`;
+    const params = `q=${query}&from=${globalData.from}&to=${globalData.to}&appid=${appid}&salt=${salt}&sign=${sign}`;
     const url = `/api/trans/vip/translate?${params}`;
     const res = await axios.get(url);
     // console.log({ res });

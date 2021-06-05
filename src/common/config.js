@@ -2,8 +2,10 @@ const globalData = {
   delay: 200,
   appid: "20210503000812126",
   key: "42MGCXLR1Z59THGw8c7T",
+  from: "auto",
   to: "zh",
-  name: "舟舟"
+  name: "舟舟",
+  type: "sound"
 };
 
 const defaultAccount = [
