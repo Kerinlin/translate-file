@@ -109,13 +109,15 @@ export default {
     },
 
     // 检查文件名中是否存在【】[]
-    checkName(fileName, origin) {
+    checkName(fileName) {
       // let newFile;
       // const reg = /[[\]【】\s]/g;
       // const isRename = reg.test(fileName);
       // console.log({isRename});
       // isRename ? (newFile = fileName) : (newFile = `${fileName} ${origin}【】`);
-      let newFile = `${origin}${fileName}`;
+
+      // 确保翻译后的文件夹中没有特殊字符影响系统判断
+      let newFile = this.removeSymbol(fileName);
       return newFile;
     },
 
@@ -246,21 +248,22 @@ export default {
               // 如果有【】保留文件名,如果没有就加上【】
 
               const target = this.checkName(result[0].dst);
+              const origin = result[0].src;
               // console.log({initSubFileName,target});
 
               // 拼接带后缀的文件名
-              const fullSuffixName = `${target}${suffixName}`;
+              const fullSuffixName = `${origin}-${target}${suffixName}`;
 
               // 翻译后的文件路径
-              const newPath = path.resolve(dirPath, fullSuffixName);
+              const newPath = path.join(dirPath, fullSuffixName);
 
               // 重命名
               fs.rename(oldPath, newPath, err => {
                 if (err) {
+                  console.log(err);
                   ipcRenderer.send("errorRename");
                   // remote.dialog.showErrorBox('错误', '翻译失败，请关闭软件重试');
                   this.loading = false;
-                  throw err;
                 }
                 console.log(`${initSubFileName} 已翻译成 ${fullSuffixName}`);
                 this.path = `${initSubFileName} 已翻译成 ${fullSuffixName}`;
