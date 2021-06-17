@@ -6,7 +6,7 @@ module.exports = {
         appId: "com.electron.zztranslate",
         productName: "翻译重命名(姑苏)",
         win: {
-          target: "exe",
+          target: "nsis",
           icon: "public/fy.ico"
         },
         mac: {
