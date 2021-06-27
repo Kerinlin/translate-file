@@ -132,7 +132,7 @@ export default {
         let filePath = file.path;
         let fileItem = file.name;
         let suffixName = path.extname(fileItem);
-        let initSubFileName = this.removeSymbol(fileItem.split(suffixName)[0]);
+        let initSubFileName = fileItem.split(suffixName)[0];
         this.translateFile(filePath, dir, initSubFileName, suffixName);
       });
       let timer = setInterval(() => {
@@ -180,9 +180,7 @@ export default {
               let suffixName = path.extname(fileItem);
 
               // 获取前缀
-              let initSubFileName = this.removeSymbol(
-                fileItem.split(suffixName)[0]
-              );
+              let initSubFileName = fileItem.split(suffixName)[0];
 
               this.translateFile(
                 fullPath,
@@ -230,7 +228,7 @@ export default {
       // console.log(path);
       let suffixName = path.extname(fileItem);
 
-      let initSubFileName = this.removeSymbol(fileItem.split(suffixName)[0]);
+      let initSubFileName = fileItem.split(suffixName)[0];
       this.translateFile(filePath, dirPath, initSubFileName, suffixName);
 
       let timer = setInterval(() => {
@@ -250,19 +248,35 @@ export default {
       throttle(() => {
         let appid = localStorage.getItem("appid") || globalData.appid;
         let key = localStorage.getItem("keys") || globalData.key;
-        translate(initSubFileName, appid, key)
+        let type = localStorage.getItem("type");
+        console.log({ initSubFileName });
+
+        let transName;
+        let preName;
+        let lastName;
+        if (type === "music") {
+          const intFilArray = initSubFileName.split("-");
+          preName = intFilArray[0];
+          lastName = this.removeSymbol(intFilArray[1]);
+          transName = lastName;
+        } else {
+          transName = this.removeSymbol(initSubFileName);
+        }
+
+        console.log({ transName });
+
+        translate(transName, appid, key)
           .then(res => {
             // console.log({ appid, key, res });
             let result = res.trans_result;
             if (result) {
               // console.log({ res });
               // 如果有【】保留文件名,如果没有就加上【】
-              let type = localStorage.getItem("type");
 
               // 音效控制逻辑
               if (type === "sound") {
                 const target = this.checkName(result[0].dst);
-                // console.log({initSubFileName,target});
+                // console.log({transName,target});
 
                 // 拼接带后缀的文件名
                 const fullSuffixName = `${target}${suffixName}`;
@@ -278,15 +292,15 @@ export default {
                     this.loading = false;
                     throw err;
                   }
-                  console.log(`${initSubFileName} 已翻译成 ${fullSuffixName}`);
-                  this.path = `${initSubFileName} 已翻译成 ${fullSuffixName}`;
+                  console.log(`${transName} 已翻译成 ${fullSuffixName}`);
+                  this.path = `${transName} 已翻译成 ${fullSuffixName}`;
                 });
               } else {
                 const res = result[0].dst;
                 console.log({ res });
                 const searchedChinese = this.getChinese(res);
                 // console.log({ searchedChinese });
-                let newFile = `${initSubFileName}-${res}${suffixName}`;
+                let newFile = `${preName}-${lastName}(${res})${suffixName}`;
                 console.log({ newFile });
 
                 // 检测是否含有关键字

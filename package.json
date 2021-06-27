@@ -1,6 +1,6 @@
 {
     "name": "translatefile",
-    "version": "0.5.5",
+    "version": "0.6.0",
     "private": true,
     "author": "Kerinlin",
     "description": "translate and rename filename",
@@ -19,7 +19,6 @@
         "axios": "^0.21.1",
         "core-js": "^3.4.3",
         "electron-updater": "~4.3.5",
-        "js-cookie": "^2.2.1",
         "md5": "^2.3.0",
         "normalize.css": "^8.0.1",
         "request": "^2.88.2",
